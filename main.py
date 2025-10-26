@@ -18,7 +18,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from PIL import Image, ImageDraw, ImageFont
-import pymupdf as fitz
+import fitz  # PyMuPDF package
 
 # ================================================================================================
 # PAGE CONFIGURATION
