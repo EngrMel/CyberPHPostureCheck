@@ -1,5 +1,4 @@
 # ================================================================================================
-# SAVE THIS AS: appv4.py
 # PH Cybersecurity & Data Privacy Posture Assessment Tool - Complete Production Version
 # Developed by CyberPH | https://facebook.com/LearnCyberPH
 # ================================================================================================
