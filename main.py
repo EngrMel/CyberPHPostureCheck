@@ -284,7 +284,7 @@ ensure_state()
 # SOCIAL SHARING - BADGE GENERATOR
 # ================================================================================================
 def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
-    """Generate security posture check badge with accurate, professional terminology."""
+    """Generate clean, professional assessment badge."""
     width, height = 1200, 630
     
     # Create gradient background
@@ -313,88 +313,66 @@ def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
                     pass
         return ImageFont.load_default()
     
-    # Load fonts
-    badge_font = load_font(30, bold=True)
-    title_font = load_font(50, bold=True)
-    subtitle_font = load_font(36)
-    label_font = load_font(28)
-    score_font = load_font(125, bold=True)
-    org_font = load_font(40, bold=True)
-    date_font = load_font(28)
-    brand_font = load_font(32, bold=True)
-    caption_font = load_font(24)
-    disclaimer_font = load_font(17)
+    # Load fonts - cleaner sizes
+    title_font = load_font(54, bold=True)
+    subtitle_font = load_font(32)
+    label_font = load_font(26)
+    score_font = load_font(135, bold=True)
+    org_font = load_font(38, bold=True)
+    date_font = load_font(26)
+    brand_font = load_font(34, bold=True)
+    footer_font = load_font(24)
+    disclaimer_font = load_font(15)  # Tiny fine print
     
-    # ========== "POSTURE CHECK" BADGE (top-right) ==========
-    badge_text = "POSTURE CHECK"
-    badge_bbox = draw.textbbox((0, 0), badge_text, font=badge_font)
-    badge_width = badge_bbox[2] - badge_bbox[0]
-    badge_x = width - 75 - badge_width
+    # ========== MAIN CONTENT (CLEAN & PROFESSIONAL) ==========
     
-    draw.rectangle([badge_x - 12, 38, width - 63, 72], 
-                   fill=(255, 255, 255, 230), outline=(255, 255, 255), width=2)
-    draw.text((badge_x, 55), badge_text, anchor="lm", fill=(16, 185, 129), font=badge_font)
+    # Title - concise, professional
+    draw.text((600, 130), "SECURITY & PRIVACY", anchor="mm", fill="white", font=title_font)
+    draw.text((600, 185), "COMPLIANCE ASSESSMENT", anchor="mm", fill="white", font=title_font)
     
-    # ========== MAIN CONTENT ==========
-    
-    # Title - changed to generic cybersecurity & privacy
-    draw.text((600, 125), "CYBERSECURITY & PRIVACY", anchor="mm", fill="white", font=title_font)
-    draw.text((600, 175), "POSTURE ASSESSMENT", anchor="mm", fill="white", font=title_font)
-    
-    # Frameworks covered
-    draw.text((600, 220), "DPA 2012 | NPC Circulars | NCSP | NIST CSF 2.0", anchor="mm", fill="white", font=subtitle_font)
+    # Frameworks - smaller, less prominent
+    draw.text((600, 235), "DPA 2012 • NPC • NCSP • NIST CSF 2.0", anchor="mm", fill="white", font=subtitle_font)
     
     # Score label
-    draw.text((600, 270), "Posture Score", anchor="mm", fill="white", font=label_font)
+    draw.text((600, 280), "Assessment Score", anchor="mm", fill="white", font=label_font)
     
-    # Score
+    # Score - the focal point
     score_text = f"{score:.1f}%"
-    draw.text((600, 345), score_text, anchor="mm", fill="white", font=score_font)
+    draw.text((600, 360), score_text, anchor="mm", fill="white", font=score_font)
     
     # Organization label
-    draw.text((600, 420), "Organization", anchor="mm", fill="white", font=label_font)
+    draw.text((600, 435), "Organization", anchor="mm", fill="white", font=label_font)
     
     # Organization name
-    org_text = org if len(org) <= 40 else org[:37] + "..."
-    draw.text((600, 460), org_text, anchor="mm", fill="white", font=org_font)
+    org_text = org if len(org) <= 42 else org[:39] + "..."
+    draw.text((600, 475), org_text, anchor="mm", fill="white", font=org_font)
     
     # Assessment date
-    date_label = f"Assessment Date: {date_str}"
-    draw.text((600, 505), date_label, anchor="mm", fill="white", font=date_font)
+    draw.text((600, 520), f"Assessed: {date_str}", anchor="mm", fill="white", font=date_font)
     
-    # ========== FOOTER WITH DISCLAIMERS ==========
-    footer_overlay = Image.new('RGBA', (width, 100), (0, 0, 0, 210))
-    img.paste(footer_overlay, (0, height - 100), footer_overlay)
+    # ========== CLEAN FOOTER ==========
+    footer_overlay = Image.new('RGBA', (width, 80), (0, 0, 0, 210))
+    img.paste(footer_overlay, (0, height - 80), footer_overlay)
     
-    # Provider branding
-    draw.text((65, height - 75), "CyberPH", anchor="lm", fill="white", font=brand_font)
-    draw.text((65, height - 50), "Free Cybersecurity & Privacy Posture Assessment", 
-             anchor="lm", fill="white", font=caption_font)
+    # Just CyberPH branding
+    draw.text((70, height - 50), "CyberPH", anchor="lm", fill="white", font=brand_font)
     
     # Website
-    draw.text((width - 65, height - 63), "www.cyberph.org", 
-             anchor="rm", fill="white", font=caption_font)
+    draw.text((width - 70, height - 50), "www.cyberph.org", anchor="rm", fill="white", font=footer_font)
     
-    # ========== DISCLAIMER (fine print) ==========
-    disclaimer_lines = [
-        "This posture check is for informational purposes only and does not constitute legal or professional advice.",
-        "For comprehensive evidence-based assessments and compliance services, contact CyberPH."
-    ]
+    # ========== TINY FINE PRINT (15pt) ==========
+    disclaimer = "This assessment is for informational purposes only and does not constitute legal advice. For professional compliance services, contact CyberPH."
+    draw.text((600, height - 18), disclaimer, anchor="mm", fill=(200, 200, 200), font=disclaimer_font)
     
-    y_offset = height - 28
-    for line in disclaimer_lines:
-        draw.text((600, y_offset), line, anchor="mm", fill=(215, 215, 215), font=disclaimer_font)
-        y_offset += 17
-    
-    # ========== CHECKMARK SEAL (top-left) ==========
-    circle_x, circle_y = 90, 115
-    circle_radius = 42
+    # ========== CHECKMARK SEAL (RIGHT SIDE) ==========
+    circle_x, circle_y = width - 110, 130
+    circle_radius = 50
     draw.ellipse([circle_x - circle_radius, circle_y - circle_radius,
                   circle_x + circle_radius, circle_y + circle_radius],
-                 fill=(255, 255, 255), outline="white", width=2)
+                 fill=(255, 255, 255), outline="white", width=3)
     
-    check_points = [(circle_x - 13, circle_y), (circle_x - 3, circle_y + 9), (circle_x + 13, circle_y - 13)]
-    draw.line(check_points, fill=(16, 185, 129), width=5, joint="curve")
+    check_points = [(circle_x - 15, circle_y), (circle_x - 4, circle_y + 11), (circle_x + 15, circle_y - 15)]
+    draw.line(check_points, fill=(16, 185, 129), width=6, joint="curve")
     
     # Save
     buf = io.BytesIO()
