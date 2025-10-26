@@ -284,44 +284,110 @@ ensure_state()
 # SOCIAL SHARING - BADGE GENERATOR
 # ================================================================================================
 def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
-    """Generate badge with LARGE, readable text - production version."""
+    """
+    Generate professional branded badge for social media sharing.
+    SAME design as original, just BIGGER text.
+    """
     width, height = 1200, 630
-    img = Image.new('RGB', (width, height), color='#10B981')
+    
+    # Create base image with gradient background
+    img = Image.new('RGB', (width, height), color='#FFFFFF')
     draw = ImageDraw.Draw(img)
     
-    # Gradient (optional - comment out if causing issues)
+    # ========== GRADIENT BACKGROUND (SAME) ==========
     for y in range(height):
-        shade = int(185 - (y / height) * 35)
-        draw.rectangle([(0, y), (width, y+1)], fill=(16, shade, 129))
+        ratio = y / height
+        r = int(16 + (10 - 16) * ratio)
+        g = int(185 + (150 - 185) * ratio)
+        b = int(129 + (100 - 129) * ratio)
+        draw.rectangle([(0, y), (width, y + 1)], fill=(r, g, b))
     
-    # Try loading fonts, use massive fallback sizes
+    # ========== LOAD LOGO (SAME) ==========
+    logo_img = None
+    logo_path = "logo.png"
+    if os.path.exists(logo_path):
+        try:
+            logo_img = Image.open(logo_path).convert("RGBA")
+            logo_ratio = logo_img.width / logo_img.height
+            logo_width = 180
+            logo_height = int(logo_width / logo_ratio)
+            logo_img = logo_img.resize((logo_width, logo_height), Image.Resampling.LANCZOS)
+            logo_x = 50
+            logo_y = 40
+            img.paste(logo_img, (logo_x, logo_y), logo_img)
+        except Exception as e:
+            print(f"Could not load logo: {e}")
+    
+    # ========== LOAD FONTS - **ONLY CHANGE: BIGGER SIZES** ==========
     try:
-        from PIL import ImageFont
-        font_big = ImageFont.truetype("arial.ttf", 150)
-        font_title = ImageFont.truetype("arial.ttf", 70)
-        font_org = ImageFont.truetype("arialbd.ttf", 50)
-        font_text = ImageFont.truetype("arial.ttf", 35)
+        title_font = ImageFont.truetype("arial.ttf", 80)        # Was 65 → Now 80
+        subtitle_font = ImageFont.truetype("arial.ttf", 60)     # Was 48 → Now 60
+        score_font = ImageFont.truetype("arialbd.ttf", 180)     # Was 140 → Now 180
+        org_font = ImageFont.truetype("arialbd.ttf", 56)        # Was 42 → Now 56 (bold)
+        caption_font = ImageFont.truetype("arial.ttf", 38)      # Was 28 → Now 38
+        brand_font = ImageFont.truetype("arialbd.ttf", 42)      # Was 32 → Now 42
     except:
-        # Fallback with large default size
-        font_big = ImageFont.load_default()
-        font_title = ImageFont.load_default()
-        font_org = ImageFont.load_default()
-        font_text = ImageFont.load_default()
+        title_font = ImageFont.load_default()
+        subtitle_font = ImageFont.load_default()
+        score_font = ImageFont.load_default()
+        org_font = ImageFont.load_default()
+        caption_font = ImageFont.load_default()
+        brand_font = ImageFont.load_default()
     
-    # Draw text with explicit positions
-    draw.text((600, 120), "🎉 ACHIEVED", anchor="mm", fill="white", font=font_title)
-    draw.text((600, 190), "PH Data Privacy Compliance", anchor="mm", fill="white", font=font_text)
-    draw.text((600, 320), f"{score:.1f}%", anchor="mm", fill="white", font=font_big)
-    draw.text((600, 430), org[:40], anchor="mm", fill="white", font=font_org)
-    draw.text((600, 490), f"Assessed: {date_str}", anchor="mm", fill="white", font=font_text)
+    # ========== DRAW TEXT (SAME POSITIONS) ==========
+    # Main title
+    title_text = "🎉 ACHIEVED"
+    draw.text((600, 120), title_text, anchor="mm", fill="white", font=title_font)
     
-    # Footer
-    draw.rectangle([(0, 540), (1200, 630)], fill=(0, 0, 0, 180))
-    draw.text((100, 570), "CyberPH | Free Assessment", anchor="lm", fill="white", font=font_text)
-    draw.text((1100, 570), "fb.com/LearnCyberPH", anchor="rm", fill="white", font=font_text)
+    # Subtitle
+    subtitle_text = "PH Data Privacy Compliance"
+    draw.text((600, 190), subtitle_text, anchor="mm", fill="white", font=subtitle_font)
     
+    # Score (large and centered)
+    score_text = f"{score:.1f}%"
+    draw.text((600, 310), score_text, anchor="mm", fill="white", font=score_font)
+    
+    # Organization name (bold and bigger)
+    org_text = org if len(org) <= 40 else org[:37] + "..."
+    draw.text((600, 420), org_text, anchor="mm", fill="white", font=org_font)
+    
+    # Date
+    info_text = f"Assessed: {date_str}"
+    draw.text((600, 480), info_text, anchor="mm", fill="white", font=caption_font)
+    
+    # ========== BRANDING FOOTER (SAME) ==========
+    footer_overlay = Image.new('RGBA', (width, 80), (0, 0, 0, 180))
+    img.paste(footer_overlay, (0, height - 80), footer_overlay)
+    
+    # CyberPH branding
+    brand_text = "CyberPH"
+    draw.text((100, height - 50), brand_text, anchor="lm", fill="white", font=brand_font)
+    
+    # Tagline
+    tagline_text = "Free PH Cybersecurity & Data Privacy Assessment"
+    draw.text((100, height - 25), tagline_text, anchor="lm", fill="white", font=caption_font)
+    
+    # Social handle
+    social_text = "fb.com/LearnCyberPH"
+    draw.text((width - 100, height - 40), social_text, anchor="rm", fill="white", font=caption_font)
+    
+    # ========== DECORATIVE CHECKMARK (SAME) ==========
+    circle_x, circle_y = width - 150, 100
+    circle_radius = 60
+    draw.ellipse([circle_x - circle_radius, circle_y - circle_radius,
+                  circle_x + circle_radius, circle_y + circle_radius],
+                 fill=(255, 255, 255, 200), outline="white", width=4)
+    
+    check_points = [
+        (circle_x - 20, circle_y),
+        (circle_x - 5, circle_y + 15),
+        (circle_x + 20, circle_y - 20)
+    ]
+    draw.line(check_points, fill=(16, 185, 129), width=8, joint="curve")
+    
+    # ========== SAVE AND RETURN ==========
     buf = io.BytesIO()
-    img.save(buf, format='PNG')
+    img.save(buf, format='PNG', optimize=True)
     buf.seek(0)
     return buf.getvalue()
 
