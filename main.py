@@ -284,17 +284,14 @@ ensure_state()
 # SOCIAL SHARING - BADGE GENERATOR
 # ================================================================================================
 def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
-    """
-    Generate professional branded badge for social media sharing.
-    SAME design as original, just BIGGER text.
-    """
+    """Generate badge with LARGE text using system fonts that actually exist."""
     width, height = 1200, 630
     
-    # Create base image with gradient background
+    # Create gradient background
     img = Image.new('RGB', (width, height), color='#FFFFFF')
     draw = ImageDraw.Draw(img)
     
-    # ========== GRADIENT BACKGROUND (SAME) ==========
+    # Gradient
     for y in range(height):
         ratio = y / height
         r = int(16 + (10 - 16) * ratio)
@@ -302,8 +299,7 @@ def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
         b = int(129 + (100 - 129) * ratio)
         draw.rectangle([(0, y), (width, y + 1)], fill=(r, g, b))
     
-    # ========== LOAD LOGO (SAME) ==========
-    logo_img = None
+    # Load logo if exists
     logo_path = "logo.png"
     if os.path.exists(logo_path):
         try:
@@ -312,80 +308,68 @@ def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
             logo_width = 180
             logo_height = int(logo_width / logo_ratio)
             logo_img = logo_img.resize((logo_width, logo_height), Image.Resampling.LANCZOS)
-            logo_x = 50
-            logo_y = 40
-            img.paste(logo_img, (logo_x, logo_y), logo_img)
-        except Exception as e:
-            print(f"Could not load logo: {e}")
+            img.paste(logo_img, (50, 40), logo_img)
+        except:
+            pass
     
-    # ========== LOAD FONTS - **ONLY CHANGE: BIGGER SIZES** ==========
-    try:
-        title_font = ImageFont.truetype("arial.ttf", 80)        # Was 65 → Now 80
-        subtitle_font = ImageFont.truetype("arial.ttf", 60)     # Was 48 → Now 60
-        score_font = ImageFont.truetype("arialbd.ttf", 180)     # Was 140 → Now 180
-        org_font = ImageFont.truetype("arialbd.ttf", 56)        # Was 42 → Now 56 (bold)
-        caption_font = ImageFont.truetype("arial.ttf", 38)      # Was 28 → Now 38
-        brand_font = ImageFont.truetype("arialbd.ttf", 42)      # Was 32 → Now 42
-    except:
-        title_font = ImageFont.load_default()
-        subtitle_font = ImageFont.load_default()
-        score_font = ImageFont.load_default()
-        org_font = ImageFont.load_default()
-        caption_font = ImageFont.load_default()
-        brand_font = ImageFont.load_default()
+    # Load fonts - TRY MULTIPLE PATHS (Linux server fonts)
+    def load_font(size, bold=False):
+        """Try loading fonts from common Linux paths."""
+        font_paths = [
+            # DejaVu fonts (most common on Ubuntu/Debian)
+            f"/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else f"/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            # Liberation fonts (RHEL/CentOS)
+            f"/usr/share/fonts/liberation/LiberationSans-Bold.ttf" if bold else f"/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
+            # Ubuntu fonts
+            f"/usr/share/fonts/truetype/ubuntu/Ubuntu-B.ttf" if bold else f"/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf",
+        ]
+        
+        for font_path in font_paths:
+            if os.path.exists(font_path):
+                try:
+                    return ImageFont.truetype(font_path, size)
+                except:
+                    pass
+        
+        # Last resort: use PIL's default but scaled
+        return ImageFont.load_default()
     
-    # ========== DRAW TEXT (SAME POSITIONS) ==========
-    # Main title
-    title_text = "🎉 ACHIEVED"
-    draw.text((600, 120), title_text, anchor="mm", fill="white", font=title_font)
+    # Load fonts with LARGE sizes
+    title_font = load_font(80, bold=True)      # 80pt bold
+    subtitle_font = load_font(60)              # 60pt regular
+    score_font = load_font(180, bold=True)     # 180pt bold
+    org_font = load_font(56, bold=True)        # 56pt bold
+    caption_font = load_font(38)               # 38pt regular
+    brand_font = load_font(42, bold=True)      # 42pt bold
     
-    # Subtitle
-    subtitle_text = "PH Data Privacy Compliance"
-    draw.text((600, 190), subtitle_text, anchor="mm", fill="white", font=subtitle_font)
+    # Draw text (same positions)
+    draw.text((600, 120), "🎉 ACHIEVED", anchor="mm", fill="white", font=title_font)
+    draw.text((600, 190), "PH Data Privacy Compliance", anchor="mm", fill="white", font=subtitle_font)
+    draw.text((600, 310), f"{score:.1f}%", anchor="mm", fill="white", font=score_font)
     
-    # Score (large and centered)
-    score_text = f"{score:.1f}%"
-    draw.text((600, 310), score_text, anchor="mm", fill="white", font=score_font)
-    
-    # Organization name (bold and bigger)
     org_text = org if len(org) <= 40 else org[:37] + "..."
     draw.text((600, 420), org_text, anchor="mm", fill="white", font=org_font)
+    draw.text((600, 480), f"Assessed: {date_str}", anchor="mm", fill="white", font=caption_font)
     
-    # Date
-    info_text = f"Assessed: {date_str}"
-    draw.text((600, 480), info_text, anchor="mm", fill="white", font=caption_font)
-    
-    # ========== BRANDING FOOTER (SAME) ==========
+    # Footer
     footer_overlay = Image.new('RGBA', (width, 80), (0, 0, 0, 180))
     img.paste(footer_overlay, (0, height - 80), footer_overlay)
     
-    # CyberPH branding
-    brand_text = "CyberPH"
-    draw.text((100, height - 50), brand_text, anchor="lm", fill="white", font=brand_font)
+    draw.text((100, height - 50), "CyberPH", anchor="lm", fill="white", font=brand_font)
+    draw.text((100, height - 25), "Free PH Cybersecurity & Data Privacy Assessment", anchor="lm", fill="white", font=caption_font)
+    draw.text((width - 100, height - 40), "fb.com/LearnCyberPH", anchor="rm", fill="white", font=caption_font)
     
-    # Tagline
-    tagline_text = "Free PH Cybersecurity & Data Privacy Assessment"
-    draw.text((100, height - 25), tagline_text, anchor="lm", fill="white", font=caption_font)
-    
-    # Social handle
-    social_text = "fb.com/LearnCyberPH"
-    draw.text((width - 100, height - 40), social_text, anchor="rm", fill="white", font=caption_font)
-    
-    # ========== DECORATIVE CHECKMARK (SAME) ==========
+    # Checkmark decoration
     circle_x, circle_y = width - 150, 100
     circle_radius = 60
     draw.ellipse([circle_x - circle_radius, circle_y - circle_radius,
                   circle_x + circle_radius, circle_y + circle_radius],
                  fill=(255, 255, 255, 200), outline="white", width=4)
     
-    check_points = [
-        (circle_x - 20, circle_y),
-        (circle_x - 5, circle_y + 15),
-        (circle_x + 20, circle_y - 20)
-    ]
+    check_points = [(circle_x - 20, circle_y), (circle_x - 5, circle_y + 15), (circle_x + 20, circle_y - 20)]
     draw.line(check_points, fill=(16, 185, 129), width=8, joint="curve")
     
-    # ========== SAVE AND RETURN ==========
+    # Save
     buf = io.BytesIO()
     img.save(buf, format='PNG', optimize=True)
     buf.seek(0)
