@@ -284,122 +284,101 @@ ensure_state()
 # SOCIAL SHARING - BADGE GENERATOR
 # ================================================================================================
 def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
-    """
-    Generate professional branded badge for social media sharing.
-    Includes CyberPH logo, gradient background, and professional typography.
-    """
-    # Standard social media image size (LinkedIn/Facebook optimal)
+    """Generate professional branded badge with LARGER text for social media."""
     width, height = 1200, 630
-
-    # Create base image with gradient background
+    
+    # Create base with gradient
     img = Image.new('RGB', (width, height), color='#FFFFFF')
     draw = ImageDraw.Draw(img)
-
-    # ========== GRADIENT BACKGROUND ==========
-    # Create green gradient (top to bottom)
+    
+    # Gradient background (green)
     for y in range(height):
-        # Gradient from bright green to darker green
         ratio = y / height
         r = int(16 + (10 - 16) * ratio)
         g = int(185 + (150 - 185) * ratio)
         b = int(129 + (100 - 129) * ratio)
         draw.rectangle([(0, y), (width, y + 1)], fill=(r, g, b))
-
-    # ========== LOAD AND PLACE LOGO ==========
-    logo_img = None
+    
+    # Load logo (if exists)
     logo_path = "logo.png"
     if os.path.exists(logo_path):
         try:
             logo_img = Image.open(logo_path).convert("RGBA")
-            # Resize logo to reasonable size (max 200px width)
             logo_ratio = logo_img.width / logo_img.height
-            logo_width = 180
+            logo_width = 200
             logo_height = int(logo_width / logo_ratio)
             logo_img = logo_img.resize((logo_width, logo_height), Image.Resampling.LANCZOS)
-
-            # Place logo in top-left
-            logo_x = 50
-            logo_y = 40
-            img.paste(logo_img, (logo_x, logo_y), logo_img)
-        except Exception as e:
-            print(f"Could not load logo: {e}")
-            logo_img = None
-
-    # ========== LOAD FONTS ==========
+            img.paste(logo_img, (50, 40), logo_img)
+        except:
+            pass
+    
+    # Load fonts with BIGGER sizes
     try:
-        # Try to load custom fonts
-        title_font = ImageFont.truetype("arial.ttf", 65)
-        subtitle_font = ImageFont.truetype("arial.ttf", 48)
-        score_font = ImageFont.truetype("arialbd.ttf", 140)  # Bold for score
-        org_font = ImageFont.truetype("arial.ttf", 42)
-        caption_font = ImageFont.truetype("arial.ttf", 28)
-        brand_font = ImageFont.truetype("arialbd.ttf", 32)
+        title_font = ImageFont.truetype("arial.ttf", 72)  # Increased from 65
+        subtitle_font = ImageFont.truetype("arial.ttf", 52)  # Increased from 48
+        score_font = ImageFont.truetype("arialbd.ttf", 160)  # Increased from 140
+        org_font = ImageFont.truetype("arialbd.ttf", 48)  # Increased from 42, made bold
+        caption_font = ImageFont.truetype("arial.ttf", 32)  # Increased from 28
+        brand_font = ImageFont.truetype("arialbd.ttf", 36)  # Increased from 32
     except:
-        # Fallback to default
         title_font = ImageFont.load_default()
         subtitle_font = ImageFont.load_default()
         score_font = ImageFont.load_default()
         org_font = ImageFont.load_default()
         caption_font = ImageFont.load_default()
         brand_font = ImageFont.load_default()
-
-    # ========== DRAW TEXT CONTENT ==========
-
+    
     # Main title
-    title_text = "ACHIEVED"
-    draw.text((600, 120), title_text, anchor="mm", fill="white", font=title_font)
-
+    title_text = "🎉 ACHIEVED"
+    draw.text((600, 110), title_text, anchor="mm", fill="white", font=title_font)
+    
     # Subtitle
     subtitle_text = "PH Data Privacy Compliance"
-    draw.text((600, 190), subtitle_text, anchor="mm", fill="white", font=subtitle_font)
-
-    # Score (large and centered)
+    draw.text((600, 185), subtitle_text, anchor="mm", fill="white", font=subtitle_font)
+    
+    # Score (large)
     score_text = f"{score:.1f}%"
     draw.text((600, 310), score_text, anchor="mm", fill="white", font=score_font)
-
-    # Organization name
-    org_text = org if len(org) <= 40 else org[:37] + "..."
+    
+    # Organization name (BOLD and BIGGER)
+    org_text = org if len(org) <= 35 else org[:32] + "..."
     draw.text((600, 420), org_text, anchor="mm", fill="white", font=org_font)
-
-    # Date and assessor info
+    
+    # Date (BIGGER)
     info_text = f"Assessed: {date_str}"
     draw.text((600, 480), info_text, anchor="mm", fill="white", font=caption_font)
-
-    # ========== BRANDING FOOTER ==========
-    # Draw semi-transparent dark bar at bottom
-    footer_overlay = Image.new('RGBA', (width, 80), (0, 0, 0, 180))
-    img.paste(footer_overlay, (0, height - 80), footer_overlay)
-
+    
+    # Branding footer
+    footer_overlay = Image.new('RGBA', (width, 90), (0, 0, 0, 180))
+    img.paste(footer_overlay, (0, height - 90), footer_overlay)
+    
     # CyberPH branding
     brand_text = "CyberPH"
-    draw.text((100, height - 50), brand_text, anchor="lm", fill="white", font=brand_font)
-
+    draw.text((100, height - 55), brand_text, anchor="lm", fill="white", font=brand_font)
+    
     # Tagline
     tagline_text = "Free PH Cybersecurity & Data Privacy Assessment"
     draw.text((100, height - 25), tagline_text, anchor="lm", fill="white", font=caption_font)
-
+    
     # Social handle
-    social_text = "cyberph.org"
+    social_text = "fb.com/LearnCyberPH"
     draw.text((width - 100, height - 40), social_text, anchor="rm", fill="white", font=caption_font)
-
-    # ========== DECORATIVE ELEMENTS ==========
-    # Add subtle shield icon or checkmark (optional)
-    # Draw a simple checkmark circle in top-right
+    
+    # Checkmark decoration
     circle_x, circle_y = width - 150, 100
     circle_radius = 60
     draw.ellipse([circle_x - circle_radius, circle_y - circle_radius,
                   circle_x + circle_radius, circle_y + circle_radius],
                  fill=(255, 255, 255, 200), outline="white", width=4)
-
-    # Draw checkmark
+    
     check_points = [
         (circle_x - 20, circle_y),
         (circle_x - 5, circle_y + 15),
         (circle_x + 20, circle_y - 20)
     ]
     draw.line(check_points, fill=(16, 185, 129), width=8, joint="curve")
-
-    # ========== SAVE AND RETURN ==========
+    
+    # Save
     buf = io.BytesIO()
     img.save(buf, format='PNG', optimize=True)
     buf.seek(0)
