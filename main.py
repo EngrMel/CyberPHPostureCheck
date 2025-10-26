@@ -284,7 +284,7 @@ ensure_state()
 # SOCIAL SHARING - BADGE GENERATOR
 # ================================================================================================
 def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
-    
+    """Generate balanced professional badge - logo, text, and branding properly sized."""
     width, height = 1200, 630
     
     # Create gradient background
@@ -299,16 +299,16 @@ def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
         b = int(129 + (100 - 129) * ratio)
         draw.rectangle([(0, y), (width, y + 1)], fill=(r, g, b))
     
-    # Load logo if exists
+    # ========== LARGER LOGO ==========
     logo_path = "logo.png"
     if os.path.exists(logo_path):
         try:
             logo_img = Image.open(logo_path).convert("RGBA")
             logo_ratio = logo_img.width / logo_img.height
-            logo_width = 180
+            logo_width = 280  # Increased from 180 to 280 (55% bigger)
             logo_height = int(logo_width / logo_ratio)
             logo_img = logo_img.resize((logo_width, logo_height), Image.Resampling.LANCZOS)
-            img.paste(logo_img, (50, 40), logo_img)
+            img.paste(logo_img, (60, 50), logo_img)
         except:
             pass
     
@@ -326,73 +326,72 @@ def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
                     pass
         return ImageFont.load_default()
     
-    # Load fonts
-    title_font = load_font(70, bold=True)
-    subtitle_font = load_font(52)
-    score_font = load_font(160, bold=True)
-    label_font = load_font(36)
-    org_font = load_font(48, bold=True)
-    date_font = load_font(34)
-    brand_font = load_font(38, bold=True)
-    caption_font = load_font(32)
+    # ========== BALANCED FONT SIZES ==========
+    title_font = load_font(48, bold=True)       # Reduced from 70
+    subtitle_font = load_font(36)               # Reduced from 52
+    label_font = load_font(28)                  # Reduced from 36
+    score_font = load_font(120, bold=True)      # Reduced from 160
+    org_font = load_font(40, bold=True)         # Reduced from 48
+    date_font = load_font(28)                   # Reduced from 34
+    brand_font = load_font(32, bold=True)       # Reduced from 38
+    caption_font = load_font(26)                # Reduced from 32
     
-    # ========== PROFESSIONAL BADGE CONTENT ==========
+    # ========== BADGE CONTENT ==========
     
-    # Badge type/certification name
-    draw.text((600, 100), "COMPLIANCE ASSESSMENT", anchor="mm", fill="white", font=title_font)
+    # Title
+    draw.text((600, 110), "COMPLIANCE ASSESSMENT", anchor="mm", fill="white", font=title_font)
     
-    # Standard/framework
-    draw.text((600, 165), "Philippine Data Privacy Act 2012", anchor="mm", fill="white", font=subtitle_font)
+    # Standard
+    draw.text((600, 160), "Philippine Data Privacy Act 2012", anchor="mm", fill="white", font=subtitle_font)
     
-    # Compliance score label
-    draw.text((600, 220), "Compliance Score", anchor="mm", fill="white", font=label_font)
+    # Score label
+    draw.text((600, 210), "Compliance Score", anchor="mm", fill="white", font=label_font)
     
-    # Score (the main focus)
+    # Score (the main focus - still prominent but not overwhelming)
     score_text = f"{score:.1f}%"
-    draw.text((600, 310), score_text, anchor="mm", fill="white", font=score_font)
+    draw.text((600, 295), score_text, anchor="mm", fill="white", font=score_font)
     
-    # Organization name label
-    draw.text((600, 390), "Organization", anchor="mm", fill="white", font=label_font)
+    # Organization label
+    draw.text((600, 380), "Organization", anchor="mm", fill="white", font=label_font)
     
     # Organization name
     org_text = org if len(org) <= 40 else org[:37] + "..."
-    draw.text((600, 440), org_text, anchor="mm", fill="white", font=org_font)
+    draw.text((600, 425), org_text, anchor="mm", fill="white", font=org_font)
     
-    # Assessment date with label
+    # Assessment date
     date_label = f"Assessment Date: {date_str}"
-    draw.text((600, 500), date_label, anchor="mm", fill="white", font=date_font)
+    draw.text((600, 485), date_label, anchor="mm", fill="white", font=date_font)
     
-    # Footer with provider info
-    footer_overlay = Image.new('RGBA', (width, 90), (0, 0, 0, 200))
-    img.paste(footer_overlay, (0, height - 90), footer_overlay)
+    # ========== FOOTER WITH WEBSITE ==========
+    footer_overlay = Image.new('RGBA', (width, 85), (0, 0, 0, 200))
+    img.paste(footer_overlay, (0, height - 85), footer_overlay)
     
     # Provider name
-    draw.text((100, height - 60), "CyberPH", anchor="lm", fill="white", font=brand_font)
+    draw.text((80, height - 55), "CyberPH", anchor="lm", fill="white", font=brand_font)
     
     # Provider tagline
-    draw.text((100, height - 28), "Free Cybersecurity & Data Privacy Posture Assessment", 
+    draw.text((80, height - 28), "Free Cybersecurity & Data Privacy Posture Assessment", 
              anchor="lm", fill="white", font=caption_font)
     
-    # Contact/verification
-    draw.text((width - 100, height - 45), "fb.com/LearnCyberPH", 
+    # Website link (changed from Facebook)
+    draw.text((width - 80, height - 42), "www.cyberph.org", 
              anchor="rm", fill="white", font=caption_font)
     
-    # Checkmark badge (certificate seal)
-    circle_x, circle_y = width - 140, 90
-    circle_radius = 55
+    # ========== CHECKMARK SEAL ==========
+    circle_x, circle_y = width - 130, 95
+    circle_radius = 50
     draw.ellipse([circle_x - circle_radius, circle_y - circle_radius,
                   circle_x + circle_radius, circle_y + circle_radius],
                  fill=(255, 255, 255), outline="white", width=3)
     
-    check_points = [(circle_x - 18, circle_y), (circle_x - 5, circle_y + 13), (circle_x + 18, circle_y - 18)]
-    draw.line(check_points, fill=(16, 185, 129), width=7, joint="curve")
+    check_points = [(circle_x - 16, circle_y), (circle_x - 4, circle_y + 12), (circle_x + 16, circle_y - 16)]
+    draw.line(check_points, fill=(16, 185, 129), width=6, joint="curve")
     
     # Save
     buf = io.BytesIO()
     img.save(buf, format='PNG', optimize=True)
     buf.seek(0)
     return buf.getvalue()
-
 
 
 # ================================================================================================
