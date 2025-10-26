@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+.venv
+
+# PyCharm
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data/test files
+*.json
+*.csv
+test_*.py
+
+# Don't ignore required files
+!questions_ph.yaml
+!requirements.txt

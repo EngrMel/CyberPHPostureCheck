@@ -1,0 +1,180 @@
+about: >
+  This assessment references: DPA RA 10173 & IRR; NPC Circular 2023-06 (min. security);
+  NPC Circular 16-03 (breach management); NPC Advisory 2017-03 (PIA);
+  DICT NCSP 2023–2028; NIST CSF 2.0.
+
+domains:
+  - name: "Governance & Compliance (DPA / NPC / NCSP / CSF:GOVERN)"
+    desc: "Foundational obligations: DPO, registration, policies, oversight."
+    questions:
+      - id: "gov_dpo"
+        text: "Do you have a designated Data Protection Officer (DPO) and is the DPO registered with the NPC?"
+        weight: 3.0
+        critical: true
+        control: "NPC 2023-06 and IRR require DPO designation and registration with NPC; central for accountability."
+        tip: "Issue a DPO appointment order and register via NPC portal; publish DPO contact details in your privacy notice."
+        ref:
+          - "NPC Circular 2023-06 (General Obligations: DPO designation & registration)"
+          - "IRR Rule VI Sec. 26 (Organizational Security)"
+      - id: "gov_dps_reg"
+        text: "Are your Data Processing Systems (DPS) registered with the NPC where required?"
+        weight: 2.0
+        critical: true
+        control: "NPC 2023-06 expects DPS inventory/registration as applicable."
+        tip: "Maintain a DPS inventory and register systems that meet NPC thresholds."
+        ref:
+          - "NPC Circular 2023-06 (DPS inventory/registration)"
+      - id: "gov_pmp"
+        text: "Do you maintain a Privacy Management Program (policies, procedures, training, monitoring)?"
+        weight: 2.0
+        critical: true
+        control: "NPC 2023-06 requires a privacy management program and periodic training."
+        tip: "Document privacy policies; schedule annual training; audit against policy and IRR."
+        ref:
+          - "NPC Circular 2023-06 (Privacy Management Program & Training)"
+
+  - name: "Privacy Impact Assessment (PIA)"
+    desc: "Risk-based analysis for systems that process personal data."
+    questions:
+      - id: "pia_all"
+        text: "Do you conduct a PIA for every processing system that involves personal data and keep it updated?"
+        weight: 2.5
+        critical: true
+        control: "NPC 2023-06 and Advisory 2017-03 require PIAs and updates when scope/vendors change."
+        tip: "Create/refresh PIAs at least annually and when there are major changes; record residual risks and mitigations."
+        ref:
+          - "NPC Circular 2023-06 Sec. 5 (PIA)"
+          - "NPC Advisory 2017-03 (PIA Guidelines)"
+
+  - name: "Data Subject Rights (DPA Sec.16)"
+    desc: "Enable rights to be informed, access, correct, erase/block, object, data portability."
+    questions:
+      - id: "dsr_process"
+        text: "Do you have a documented process and channels to handle data subject requests (ID verification, SLAs, logs)?"
+        weight: 1.5
+        critical: false
+        control: "DPA Sec.16 mandates data subject rights; process evidence needed for accountability."
+        tip: "Publish request channels in your privacy notice; track requests and response times; verify IDs appropriately."
+        ref:
+          - "DPA RA 10173 Sec. 16 (Rights of the Data Subject)"
+
+  - name: "Security Measures — Organizational / Physical / Technical (IRR Rule VI; NPC 2023-06)"
+    desc: "Controls to ensure confidentiality, integrity, availability (CIA)."
+    questions:
+      - id: "sec_policy_train"
+        text: "Do you run annual privacy & security awareness training for all personnel with records?"
+        weight: 1.5
+        critical: false
+        control: "Organizational security requires training and awareness."
+        tip: "Run role-based training with phishing simulations; keep attendance records."
+        ref:
+          - "IRR Rule VI Sec. 26"
+          - "NPC 2023-06 (Training)"
+      - id: "sec_access_mfa"
+        text: "Is MFA enforced for privileged and remote access to systems holding personal data?"
+        weight: 2.5
+        critical: true
+        control: "Access control is essential; MFA reduces account takeover risk."
+        tip: "Enforce MFA for admins and remote users; monitor failed logins and privilege misuse."
+        ref:
+          - "NPC Data Security (Access Control Policy) guidance"
+          - "IRR Rule VI Sec. 28 (Technical)"
+      - id: "sec_encrypt"
+        text: "Is encryption at rest and in transit applied to sensitive personal data?"
+        weight: 2.5
+        critical: true
+        control: "Encryption is an explicit expectation and best practice to reduce breach impact."
+        tip: "Implement strong encryption (e.g., AES-256 at rest, TLS 1.2+ in transit); manage keys securely."
+        ref:
+          - "NPC Data Security: Encryption"
+          - "IRR Rule VI Sec. 28"
+      - id: "sec_backup_bcp"
+        text: "Do you have backup and Business Continuity Plan (BCP), with periodic restore tests?"
+        weight: 2.0
+        critical: true
+        control: "NPC 2023-06 requires a BCP; backups and recovery underpin availability."
+        tip: "Define RPO/RTO; perform quarterly restore tests; store offline/immutable backups."
+        ref:
+          - "NPC Circular 2023-06 (Business Continuity Plan)"
+      - id: "sec_physical"
+        text: "Are physical security controls (restricted access, visitor logs, CCTV) implemented for areas storing personal data?"
+        weight: 1.5
+        critical: false
+        control: "IRR requires physical safeguards; risk of unauthorized physical access."
+        tip: "Harden server rooms; enforce access badges; maintain entry/exit logs; review CCTV retention policy."
+        ref:
+          - "IRR Rule VI Sec. 27 (Physical Security)"
+
+  - name: "Incident Response & Breach Notification (NPC 16-03)"
+    desc: "Preparedness and legal timelines for reporting."
+    questions:
+      - id: "ir_plan"
+        text: "Do you have an Incident Response Plan and a breach response team with defined roles?"
+        weight: 2.0
+        critical: true
+        control: "NPC 16-03 requires breach management policy and response team."
+        tip: "Document triage/escalation, evidence handling, legal/comms steps; run tabletop exercises."
+        ref:
+          - "NPC Circular 16-03 (Personal Data Breach Management)"
+      - id: "ir_72h"
+        text: "Can you notify the NPC and affected data subjects within 72 hours for reportable breaches?"
+        weight: 2.5
+        critical: true
+        control: "NPC mandates 72-hour notification for reportable breaches; no delay if >=100 data subjects or SPI harm."
+        tip: "Maintain DBNMS access, templates, and contact lists; pre-draft notices; define triggers and approvals."
+        ref:
+          - "NPC Circular 16-03 (72-hour rule)"
+
+  - name: "Retention & Disposal"
+    desc: "Data minimization, storage limitation, secure disposal."
+    questions:
+      - id: "ret_policy"
+        text: "Do you have a Retention & Disposal Policy and do you securely delete personal data when no longer necessary?"
+        weight: 2.0
+        critical: true
+        control: "IRR requires storage limitation and secure disposal; NPC 2023-06 requires retention policy."
+        tip: "Map data sets to retention schedules; apply secure wipe/shred procedures; log disposals."
+        ref:
+          - "IRR Rule IV & VI (Retention)"
+          - "NPC Circular 2023-06 (Retention Policy)"
+
+  - name: "Third Parties & Cross-Border"
+    desc: "Due diligence and data sharing agreements (DSA)."
+    questions:
+      - id: "thirdparty_dsa"
+        text: "Do you conduct third-party due diligence and execute Data Sharing/Processing Agreements with required clauses?"
+        weight: 2.0
+        critical: true
+        control: "IRR and NPC require DSAs with security, breach, and rights clauses; assess vendors periodically."
+        tip: "Maintain a vendor register; include audit rights, subprocessor control, breach notice, cross-border safeguards."
+        ref:
+          - "IRR Rule V (Data Sharing)"
+          - "NPC Advisories on DSAs"
+
+  - name: "Cybersecurity Basics (NIST CSF 2.0)"
+    desc: "Non-privacy-specific baseline security posture."
+    questions:
+      - id: "asset_inventory"
+        text: "Do you maintain an up-to-date asset inventory (devices, apps, data flows)?"
+        weight: 1.5
+        critical: true
+        control: "CSF Identify requires asset and data inventories as a foundation for control coverage."
+        tip: "Automate discovery; classify assets/data by sensitivity and business criticality."
+        ref:
+          - "NIST CSF 2.0 (Identify, Govern)"
+      - id: "vuln_mgmt"
+        text: "Do you have a vulnerability & patch management process with defined SLAs?"
+        weight: 2.0
+        critical: true
+        control: "Reducing known vulnerabilities is critical to prevent exploitation."
+        tip: "Scan regularly; track remediation SLAs by severity; verify via rescans."
+        ref:
+          - "NIST CSF 2.0 (Protect)"
+      - id: "logging_siem"
+        text: "Are security logs centralized and monitored (e.g., SIEM) for anomaly detection?"
+        weight: 1.5
+        critical: false
+        control: "Detection capabilities are key for timely response."
+        tip: "Define log retention; monitor critical events (auth, admin, network, DB access)."
+        ref:
+          - "NIST CSF 2.0 (Detect)"
