@@ -284,7 +284,7 @@ ensure_state()
 # SOCIAL SHARING - BADGE GENERATOR
 # ================================================================================================
 def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
-    """Generate balanced professional badge - logo, text, and branding properly sized."""
+    """Generate security posture check badge with accurate, professional terminology."""
     width, height = 1200, 630
     
     # Create gradient background
@@ -298,19 +298,6 @@ def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
         g = int(185 + (150 - 185) * ratio)
         b = int(129 + (100 - 129) * ratio)
         draw.rectangle([(0, y), (width, y + 1)], fill=(r, g, b))
-    
-    # ========== LARGER LOGO ==========
-    logo_path = "logo.png"
-    if os.path.exists(logo_path):
-        try:
-            logo_img = Image.open(logo_path).convert("RGBA")
-            logo_ratio = logo_img.width / logo_img.height
-            logo_width = 280  # Increased from 180 to 280 (55% bigger)
-            logo_height = int(logo_width / logo_ratio)
-            logo_img = logo_img.resize((logo_width, logo_height), Image.Resampling.LANCZOS)
-            img.paste(logo_img, (60, 50), logo_img)
-        except:
-            pass
     
     # Font loading helper
     def load_font(size, bold=False):
@@ -326,66 +313,88 @@ def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
                     pass
         return ImageFont.load_default()
     
-    # ========== BALANCED FONT SIZES ==========
-    title_font = load_font(48, bold=True)       # Reduced from 70
-    subtitle_font = load_font(36)               # Reduced from 52
-    label_font = load_font(28)                  # Reduced from 36
-    score_font = load_font(120, bold=True)      # Reduced from 160
-    org_font = load_font(40, bold=True)         # Reduced from 48
-    date_font = load_font(28)                   # Reduced from 34
-    brand_font = load_font(32, bold=True)       # Reduced from 38
-    caption_font = load_font(26)                # Reduced from 32
+    # Load fonts
+    badge_font = load_font(30, bold=True)
+    title_font = load_font(50, bold=True)
+    subtitle_font = load_font(36)
+    label_font = load_font(28)
+    score_font = load_font(125, bold=True)
+    org_font = load_font(40, bold=True)
+    date_font = load_font(28)
+    brand_font = load_font(32, bold=True)
+    caption_font = load_font(24)
+    disclaimer_font = load_font(17)
     
-    # ========== BADGE CONTENT ==========
+    # ========== "POSTURE CHECK" BADGE (top-right) ==========
+    badge_text = "POSTURE CHECK"
+    badge_bbox = draw.textbbox((0, 0), badge_text, font=badge_font)
+    badge_width = badge_bbox[2] - badge_bbox[0]
+    badge_x = width - 75 - badge_width
     
-    # Title
-    draw.text((600, 110), "COMPLIANCE ASSESSMENT", anchor="mm", fill="white", font=title_font)
+    draw.rectangle([badge_x - 12, 38, width - 63, 72], 
+                   fill=(255, 255, 255, 230), outline=(255, 255, 255), width=2)
+    draw.text((badge_x, 55), badge_text, anchor="lm", fill=(16, 185, 129), font=badge_font)
     
-    # Standard
-    draw.text((600, 160), "Philippine Data Privacy Act 2012", anchor="mm", fill="white", font=subtitle_font)
+    # ========== MAIN CONTENT ==========
+    
+    # Title - changed to generic cybersecurity & privacy
+    draw.text((600, 125), "CYBERSECURITY & PRIVACY", anchor="mm", fill="white", font=title_font)
+    draw.text((600, 175), "POSTURE ASSESSMENT", anchor="mm", fill="white", font=title_font)
+    
+    # Frameworks covered
+    draw.text((600, 220), "DPA 2012 | NPC Circulars | NCSP | NIST CSF 2.0", anchor="mm", fill="white", font=subtitle_font)
     
     # Score label
-    draw.text((600, 210), "Compliance Score", anchor="mm", fill="white", font=label_font)
+    draw.text((600, 270), "Posture Score", anchor="mm", fill="white", font=label_font)
     
-    # Score (the main focus - still prominent but not overwhelming)
+    # Score
     score_text = f"{score:.1f}%"
-    draw.text((600, 295), score_text, anchor="mm", fill="white", font=score_font)
+    draw.text((600, 345), score_text, anchor="mm", fill="white", font=score_font)
     
     # Organization label
-    draw.text((600, 380), "Organization", anchor="mm", fill="white", font=label_font)
+    draw.text((600, 420), "Organization", anchor="mm", fill="white", font=label_font)
     
     # Organization name
     org_text = org if len(org) <= 40 else org[:37] + "..."
-    draw.text((600, 425), org_text, anchor="mm", fill="white", font=org_font)
+    draw.text((600, 460), org_text, anchor="mm", fill="white", font=org_font)
     
     # Assessment date
     date_label = f"Assessment Date: {date_str}"
-    draw.text((600, 485), date_label, anchor="mm", fill="white", font=date_font)
+    draw.text((600, 505), date_label, anchor="mm", fill="white", font=date_font)
     
-    # ========== FOOTER WITH WEBSITE ==========
-    footer_overlay = Image.new('RGBA', (width, 85), (0, 0, 0, 200))
-    img.paste(footer_overlay, (0, height - 85), footer_overlay)
+    # ========== FOOTER WITH DISCLAIMERS ==========
+    footer_overlay = Image.new('RGBA', (width, 100), (0, 0, 0, 210))
+    img.paste(footer_overlay, (0, height - 100), footer_overlay)
     
-    # Provider name
-    draw.text((80, height - 55), "CyberPH", anchor="lm", fill="white", font=brand_font)
-    
-    # Provider tagline
-    draw.text((80, height - 28), "Free Cybersecurity & Data Privacy Posture Assessment", 
+    # Provider branding
+    draw.text((65, height - 75), "CyberPH", anchor="lm", fill="white", font=brand_font)
+    draw.text((65, height - 50), "Free Cybersecurity & Privacy Posture Assessment", 
              anchor="lm", fill="white", font=caption_font)
     
-    # Website link (changed from Facebook)
-    draw.text((width - 80, height - 42), "www.cyberph.org", 
+    # Website
+    draw.text((width - 65, height - 63), "www.cyberph.org", 
              anchor="rm", fill="white", font=caption_font)
     
-    # ========== CHECKMARK SEAL ==========
-    circle_x, circle_y = width - 130, 95
-    circle_radius = 50
+    # ========== DISCLAIMER (fine print) ==========
+    disclaimer_lines = [
+        "This posture check is for informational purposes only and does not constitute legal or professional advice.",
+        "For comprehensive evidence-based assessments and compliance services, contact CyberPH."
+    ]
+    
+    y_offset = height - 28
+    for line in disclaimer_lines:
+        draw.text((600, y_offset), line, anchor="mm", fill=(215, 215, 215), font=disclaimer_font)
+        y_offset += 17
+    
+    # ========== CHECKMARK SEAL (top-left) ==========
+    circle_x, circle_y = 90, 115
+    circle_radius = 42
     draw.ellipse([circle_x - circle_radius, circle_y - circle_radius,
                   circle_x + circle_radius, circle_y + circle_radius],
-                 fill=(255, 255, 255), outline="white", width=3)
+                 fill=(255, 255, 255), outline="white", width=2)
     
-    check_points = [(circle_x - 16, circle_y), (circle_x - 4, circle_y + 12), (circle_x + 16, circle_y - 16)]
-    draw.line(check_points, fill=(16, 185, 129), width=6, joint="curve")
+    check_points = [(circle_x - 13, circle_y), (circle_x - 3, circle_y + 9), (circle_x + 13, circle_y - 13)]
+    draw.line(check_points, fill=(16, 185, 129), width=5, joint="curve")
     
     # Save
     buf = io.BytesIO()
