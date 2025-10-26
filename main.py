@@ -284,7 +284,7 @@ ensure_state()
 # SOCIAL SHARING - BADGE GENERATOR
 # ================================================================================================
 def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
-    """Generate badge with LARGE text using system fonts that actually exist."""
+    
     width, height = 1200, 630
     
     # Create gradient background
@@ -312,62 +312,80 @@ def generate_share_badge(org: str, score: float, date_str: str) -> bytes:
         except:
             pass
     
-    # Load fonts - TRY MULTIPLE PATHS (Linux server fonts)
+    # Font loading helper
     def load_font(size, bold=False):
-        """Try loading fonts from common Linux paths."""
         font_paths = [
-            # DejaVu fonts (most common on Ubuntu/Debian)
             f"/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else f"/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-            # Liberation fonts (RHEL/CentOS)
             f"/usr/share/fonts/liberation/LiberationSans-Bold.ttf" if bold else f"/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
-            # Ubuntu fonts
-            f"/usr/share/fonts/truetype/ubuntu/Ubuntu-B.ttf" if bold else f"/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf",
         ]
-        
         for font_path in font_paths:
             if os.path.exists(font_path):
                 try:
                     return ImageFont.truetype(font_path, size)
                 except:
                     pass
-        
-        # Last resort: use PIL's default but scaled
         return ImageFont.load_default()
     
-    # Load fonts with LARGE sizes
-    title_font = load_font(80, bold=True)      # 80pt bold
-    subtitle_font = load_font(60)              # 60pt regular
-    score_font = load_font(180, bold=True)     # 180pt bold
-    org_font = load_font(56, bold=True)        # 56pt bold
-    caption_font = load_font(38)               # 38pt regular
-    brand_font = load_font(42, bold=True)      # 42pt bold
+    # Load fonts
+    title_font = load_font(70, bold=True)
+    subtitle_font = load_font(52)
+    score_font = load_font(160, bold=True)
+    label_font = load_font(36)
+    org_font = load_font(48, bold=True)
+    date_font = load_font(34)
+    brand_font = load_font(38, bold=True)
+    caption_font = load_font(32)
     
-    # Draw text (same positions)
-    draw.text((600, 120), "🎉 ACHIEVED", anchor="mm", fill="white", font=title_font)
-    draw.text((600, 190), "PH Data Privacy Compliance", anchor="mm", fill="white", font=subtitle_font)
-    draw.text((600, 310), f"{score:.1f}%", anchor="mm", fill="white", font=score_font)
+    # ========== PROFESSIONAL BADGE CONTENT ==========
     
+    # Badge type/certification name
+    draw.text((600, 100), "COMPLIANCE ASSESSMENT", anchor="mm", fill="white", font=title_font)
+    
+    # Standard/framework
+    draw.text((600, 165), "Philippine Data Privacy Act 2012", anchor="mm", fill="white", font=subtitle_font)
+    
+    # Compliance score label
+    draw.text((600, 220), "Compliance Score", anchor="mm", fill="white", font=label_font)
+    
+    # Score (the main focus)
+    score_text = f"{score:.1f}%"
+    draw.text((600, 310), score_text, anchor="mm", fill="white", font=score_font)
+    
+    # Organization name label
+    draw.text((600, 390), "Organization", anchor="mm", fill="white", font=label_font)
+    
+    # Organization name
     org_text = org if len(org) <= 40 else org[:37] + "..."
-    draw.text((600, 420), org_text, anchor="mm", fill="white", font=org_font)
-    draw.text((600, 480), f"Assessed: {date_str}", anchor="mm", fill="white", font=caption_font)
+    draw.text((600, 440), org_text, anchor="mm", fill="white", font=org_font)
     
-    # Footer
-    footer_overlay = Image.new('RGBA', (width, 80), (0, 0, 0, 180))
-    img.paste(footer_overlay, (0, height - 80), footer_overlay)
+    # Assessment date with label
+    date_label = f"Assessment Date: {date_str}"
+    draw.text((600, 500), date_label, anchor="mm", fill="white", font=date_font)
     
-    draw.text((100, height - 50), "CyberPH", anchor="lm", fill="white", font=brand_font)
-    draw.text((100, height - 25), "Free PH Cybersecurity & Data Privacy Assessment", anchor="lm", fill="white", font=caption_font)
-    draw.text((width - 100, height - 40), "fb.com/LearnCyberPH", anchor="rm", fill="white", font=caption_font)
+    # Footer with provider info
+    footer_overlay = Image.new('RGBA', (width, 90), (0, 0, 0, 200))
+    img.paste(footer_overlay, (0, height - 90), footer_overlay)
     
-    # Checkmark decoration
-    circle_x, circle_y = width - 150, 100
-    circle_radius = 60
+    # Provider name
+    draw.text((100, height - 60), "CyberPH", anchor="lm", fill="white", font=brand_font)
+    
+    # Provider tagline
+    draw.text((100, height - 28), "Free Cybersecurity & Data Privacy Posture Assessment", 
+             anchor="lm", fill="white", font=caption_font)
+    
+    # Contact/verification
+    draw.text((width - 100, height - 45), "fb.com/LearnCyberPH", 
+             anchor="rm", fill="white", font=caption_font)
+    
+    # Checkmark badge (certificate seal)
+    circle_x, circle_y = width - 140, 90
+    circle_radius = 55
     draw.ellipse([circle_x - circle_radius, circle_y - circle_radius,
                   circle_x + circle_radius, circle_y + circle_radius],
-                 fill=(255, 255, 255, 200), outline="white", width=4)
+                 fill=(255, 255, 255), outline="white", width=3)
     
-    check_points = [(circle_x - 20, circle_y), (circle_x - 5, circle_y + 15), (circle_x + 20, circle_y - 20)]
-    draw.line(check_points, fill=(16, 185, 129), width=8, joint="curve")
+    check_points = [(circle_x - 18, circle_y), (circle_x - 5, circle_y + 13), (circle_x + 18, circle_y - 18)]
+    draw.line(check_points, fill=(16, 185, 129), width=7, joint="curve")
     
     # Save
     buf = io.BytesIO()
