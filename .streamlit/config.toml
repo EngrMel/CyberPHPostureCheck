@@ -12,8 +12,3 @@ port = 8501
 
 [browser]
 gatherUsageStats = false
-
-[server]
-maxUploadSize = 5
-enableXsrfProtection = true
-enableCORS = false
